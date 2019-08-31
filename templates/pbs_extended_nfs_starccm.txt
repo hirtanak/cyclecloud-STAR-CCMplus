@@ -1,0 +1,281 @@
+# Copyright (c) 2019 Hiroshi Tanaka, hirtanak@gmail.com @hirtanak
+# Licensed under the MIT License.
+################################
+## Cluster Configuration File ##
+################################
+
+[cluster STAR-CCM+]
+FormLayout = selectionpanel
+Category = Applications
+IconUrl = https://raw.githubusercontent.com/hirtanak/scripts/master/SiemensStarCCMPluslogo.png
+
+#Autoscale = $Autoscale #Autoscale as Disable
+
+    [[node defaults]]
+    UsePublicNetwork = $UsePublicNetwork
+    Credentials = $Credentials    
+    SubnetId = $SubnetId
+    Region = $Region
+    KeyPairLocation = ~/.ssh/cyclecloud.pem
+#    KeyPairLocation = ~/examples/id_rsaccuser 
+   
+        [[[cluster-init STAR-CCMplus:default:1.0.1]]]
+        Optional = True
+
+        [[[configuration]]]
+        StarccmFileName = $configuration_StarccmFileName
+	LICENSE = $configuration_LICENSE
+        PODKEY = $configuration_PODKEY
+        MPI = $configuration_MPI
+	MODEL = $configuration_Model
+
+    [[node master]]
+    MachineType = $MasterMachineType
+    IsReturnProxy = $ReturnProxy
+    AdditionalClusterInitSpecs = $MasterClusterInitSpecs
+    ImageName = $ImageName
+
+        [[[configuration]]]
+
+        [[[cluster-init STAR-CCMplus:master:1.0.1]]]
+        Optional = True
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $UsePublicNetwork
+	StaticPublicIpAddress = true
+
+        [[[input-endpoint ganglia]]]
+        PrivatePort = 8652
+        PublicPort = 8652
+
+        # Add 2 premium disks in a RAID 0 configuration to the NFS export
+        [[[volume nfs-1]]]
+        Size = 512
+        SSD = True
+        Mount = nfs
+        Persistent = true
+
+        [[[volume nfs-2]]]
+        Size = 512
+        SSD = True
+        Mount = nfs
+        Persistent = true
+
+	[[[configuration cyclecloud.mounts.nfs]]]
+	mountpoint = /mnt/exports/apps
+	fs_type = ext4
+	raid_level = 0
+
+        [[[configuration cyclecloud.exports.nfs_data]]]
+        type = nfs
+        export_path = /mnt/exports/apps
+#        raid_level = 0
+
+    [[nodearray execute]]
+    MachineType = $ExecuteMachineType
+    MaxCoreCount = $MaxExecuteCoreCount
+    Interruptible = $UseLowPrio
+    AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
+    InstallJetpack = true
+    JetpackPlatform = centos-7
+    ImageName = $ImageNameExecute
+    Azure.SingleScaleset = true
+
+        [[[configuration]]]
+
+        [[[cluster-init STAR-CCMplus:execute:1.0.1]]]
+        Optional = True
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $ExecuteNodesPublic
+
+        [[[configuration cyclecloud.mounts.nfs_data]]]
+        type = nfs
+        mountpoint = /mnt/exports/apps
+        export_path = /mnt/exports/apps
+
+[parameters About]
+Order = 1
+
+    [[parameters About STAR-CCMplus]]
+
+        [[[parameter STAR-CCMplus]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template = '''<p>Insert template description here</p>'''
+
+[parameters Required Settings]
+Order = 10
+
+    [[parameters Virtual Machines ]]
+    Description = "The cluster, in this case, has two roles: the scheduler master-node with shared filer and the execute hosts. Configure which VM types to use based on the requirements of your application."
+    Order = 20
+
+        [[[parameter Region]]]
+        Label = Region
+        Description = Deployment Location
+        ParameterType = Cloud.Region
+        DefaultValue = japaneast
+
+        [[[parameter MasterMachineType]]]
+        Label = Master VM Type
+        Description = The VM type for scheduler master and shared filer.
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_DS3_v2
+
+        [[[parameter ExecuteMachineType]]]
+        Label = Execute VM Type
+        Description = The VM type for execute nodes
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_H16r
+        Config.Multiselect = true
+        Config.Filter := Package in {"Standard_H16r", "Standard_H16r_Promo", "Standard_HB60rs", "StandardHC44rs"}
+        config.plugin = pico.control.AutoCompleteDropdown
+            [[[[list Config.Entries]]]]
+            Name = Standard_H16r
+            Label = Standard_H16r
+            [[[[list Config.Entries]]]]
+            Name = Standard_H16r_Promo
+            Label = Standard_H16r_Promo
+            [[[[list Config.Entries]]]]
+            Name = Standard_HB60rs
+            Label = Standard_HB60rs
+            [[[[list Config.Entries]]]]
+            Name = Standard_HC44rs
+            Label = Standard_HC44rs
+
+    [[parameters Auto-Scaling]]
+    Description = "The cluster can autoscale to the workload, adding execute hosts as jobs are queued. To enable this check the box below and choose the initial and maximum core counts for the cluster"
+    Order = 30
+
+        [[[parameter Autoscale]]]
+        Label = Autoscale
+        DefaultValue = true
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Start and stop execute instances automatically
+
+        [[[parameter MaxExecuteCoreCount]]]
+        Label = Max Cores
+        Description = The total number of execute cores to start
+        DefaultValue = 128
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 0
+        Config.IntegerOnly = true
+
+        [[[parameter UseLowPrio]]]
+        Label = Low Priority
+        DefaultValue = true
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use low priority instances for execute hosts
+
+    [[parameters Networking]]
+    Order = 40
+
+        [[[parameter SubnetId]]]
+        Label = Subnet ID
+        Description = Subnet Resource Path (ResourceGroup/VirtualNetwork/Subnet)
+        ParameterType = Azure.Subnet
+        Required = True
+
+
+[parameters Advanced Settings]
+Order = 20
+
+    [[parameters Azure Settings]]
+    Order = 10 
+
+        [[[parameter Credentials]]]
+        Description = The credentials for the cloud provider
+        ParameterType = Cloud.Credentials
+
+    [[parameters STAR-CCMplus Settings ]]
+    Description = "Section for configuring STAR-CCMplus"
+    Order = 5
+
+        [[[parameter configuration_StarccmFileName]]]
+	required = True
+	label = STAR-CCM+ version
+	Description = Version of STAR-CCMplus to install on the cluster. Package should be named STAR-CCM+-<version>_<platform><precision>.tar.gz
+	defaultvalue = STAR-CCM+14.04.011_02_linux-x86_64-r8.tar.gz
+
+        [[[parameter configuration_LICENSE]]]
+    	requied = False
+	label = License Server Address
+	Description = "PoD License Server <Port#>@<IP Address>"
+	defaultvalue = 1999@flex.cd-adapco.com
+
+        [[[parameter configuration_PODKEY]]]
+        requied = False
+	label = PoDKey
+        Description = "PoD License Key"
+        defaultvalue = 22 digits number
+
+        [[[parameter configuration_MPI]]]
+        requied = False
+        label = MPI type
+        Description = MPI setting IMPI, Plarform MPI
+        defaultvalue = impi
+        Config.Filter := Package in {"impi", "platform"}
+        config.plugin = pico.control.AutoCompleteDropdown
+            [[[[list Config.Entries]]]]
+            Name = impi
+            Label = impi
+            [[[[list Config.Entries]]]]
+            Name = platform
+            Label = plarform
+
+        [[[parameter configuration_Model]]]
+        requied = False
+        label = Model Name
+        Description = "Model Name"
+        defaultvalue = test1.sim
+
+    [[parameters Software]]
+    Description = "Specify the scheduling software, and base OS installed on all nodes, and optionally the cluster-init and chef versions from your Locker."
+    Order = 10
+
+        [[[parameter ImageName]]]
+        Label = Master Node OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+	DefaultValue = OpenLogic:CentOS-HPC:7.6:latest
+
+        [[[parameter MasterClusterInitSpecs]]]
+        Label = Master Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to the master node
+        ParameterType = Cloud.ClusterInitSpecs
+
+        [[[parameter ImageNameExecute]]]
+        Label = Compile Node OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = OpenLogic:CentOS-HPC:7.6:latest
+
+        [[[parameter ExecuteClusterInitSpecs]]]
+        Label = Execute Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to execute nodes
+        ParameterType = Cloud.ClusterInitSpecs
+	
+    [[parameters Advanced Networking]]
+    Description = Advanced networking settings
+
+        [[[parameter ReturnProxy]]]
+        Label = Return Proxy
+        DefaultValue = true
+        ParameterType = Boolean
+        Config.Label = Use SSH tunnel to connect to CycleCloud (required if direct access is blocked)
+
+        [[[parameter UsePublicNetwork]]]
+        Label = Public Head Node
+        DefaultValue = true
+        ParameterType = Boolean
+        Config.Label = Access master node from the Internet
+
+        [[[parameter ExecuteNodesPublic]]]
+        Label = Public Execute
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Access execute nodes from the Internet
+        Conditions.Excluded := UsePublicNetwork isnt true
