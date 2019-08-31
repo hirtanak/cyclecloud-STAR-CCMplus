@@ -11,13 +11,13 @@
 2. cd cyclecloud-STAR-CCM+<version>
 2. put STAR-CCM+ library/model on <template>/blob directory.
 4. pug OSS PBS Pro files on <template>/blob directory.
-5. Rewrite "Files" attiribute for your binariy in "project.ini" file. 
+5. Rewrite "Files" attribute for your binariy in "project.ini" file. 
 6. run "cyclecloud project upload azure-storage" for uploading template to CycleCloud
 7. "cyclecloud import_template -f templates/pbs_extended_nfs_starccm.txt" for register this template to your CycleCloud
 
 ## How to run Siemens STAR-CCM+
 
-1. Create Execute Node mannually
+1. Create Execute Node manually
 2. Check Node IP Address
 3. Create hosts file for your nodes
 4. qsub ~/starccmrun.sh (sample as below)
@@ -55,6 +55,9 @@ CDLMD_LICENSE_FILE=1999@flex.cd-adapco.com
 ${INSTALL_DIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION}${PRECISION}/star/bin/starccm+ -np ${NP} -machinefile /shared/home/azureuser/hosts -licpath ${CDLMD_LICENSE_FILE} -power -podkey ${PODKEY} -mpi intel -mpiflags "-ppn 1 -env I_MPI_DEBUG 5 -env I_MPI_FABRICS shm:ofa" -batch /shared/home/azureuser/solve_SS_b787_images.java -load ${INPUT}
 </pre></code>
 
+## Known Issues
+1. This tempate support only single administrator. So you have to use same user between superuser(initial Azure CycleCloud User) and deployment user of this template
+2. Currently AutoScale is disabled. you have to create execute node and get IP. In addtion, create hosts file for your execute node environment.
 
 # Azure CycleCloud用テンプレート:STAR-CCM+(NFS/PBSPro)
 
