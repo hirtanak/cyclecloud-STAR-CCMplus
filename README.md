@@ -9,10 +9,11 @@
 
 1. tar zxvf cyclecloud-STAR-CCM+<version>.tar.gz
 2. cd cyclecloud-STAR-CCM+<version>
-2. put STAR-CCM+ library/model on <template>/blob directory
-3. Rewrite "Files" attiribute for your binariy in "project.ini" file. 
-4. run "cyclecloud project upload azure-storage" for uploading template to CycleCloud
-5. "cyclecloud import_template -f templates/pbs_extended_nfs_starccm.txt" for register this template to your CycleCloud
+2. put STAR-CCM+ library/model on <template>/blob directory.
+4. pug OSS PBS Pro files on <template>/blob directory.
+5. Rewrite "Files" attiribute for your binariy in "project.ini" file. 
+6. run "cyclecloud project upload azure-storage" for uploading template to CycleCloud
+7. "cyclecloud import_template -f templates/pbs_extended_nfs_starccm.txt" for register this template to your CycleCloud
 
 ## How to run Siemens STAR-CCM+
 
