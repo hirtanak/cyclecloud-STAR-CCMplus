@@ -16,6 +16,11 @@ sed -i -e "s/^SELINUX=enforcing$/SELINUX=disabled/g" /etc/selinux/config
 CUSER=$(grep "Added user" /opt/cycle/jetpack/logs/jetpackd.log | awk '{print $6}')
 CUSER=${CUSER//\'/}
 CUSER=${CUSER//\`/}
+if [[ -z ${CUSER} ]]; then
+   CUSER=$(grep "linux_user\[" ./chef-client.log | awk '{print $3}' | head -1)
+   CUSER=${CUSER#*linux_user\[}
+   CUSER=${CUSER%\]*}
+fi
 echo ${CUSER} > /mnt/exports/shared/CUSER
 HOMEDIR=/shared/home/${CUSER}
 CYCLECLOUD_SPEC_PATH=/mnt/cluster-init/STAR-CCMplus/master
@@ -24,7 +29,7 @@ CYCLECLOUD_SPEC_PATH=/mnt/cluster-init/STAR-CCMplus/master
 STARCCMPLUS_VERSION=14.04.011
 REVISION=02
 STARCCMPLUS_PLATFORM=linux-x86_64
-PRECISION=r8 #r8 is single precison
+PRECISION=r8 #r8 is double precison
 # get file name
 STARCCMPLUSFILENAME=$(jetpack config StarccmFileName)
 # set parameters
@@ -32,8 +37,19 @@ STARCCMPLUS_VERSION=${STARCCMPLUSFILENAME:9:9}
 REVISION=${STARCCMPLUSFILENAME:19:2}
 STARCCMPLUS_PLATFORM=${STARCCMPLUSFILENAME:22:12}
 PRECISION=${STARCCMPLUSFILENAME:35:2}
+case "${PRECISION}" in
+  "r8" ) PRECISION=-${PRECISION} ;;
+  * ) echo "single precision"
+      PRECISION=""  ;;
+esac
 MPI_TYPE=$(jetpack config MPI)
 MODEL=$(jetpack config MODEL)
+
+# resource ulimit setting
+CMD1=$(grep memlock ${HOMEDIR}/.bashrc | head -2)
+if [[ -z "${CMD1}" ]]; then
+  (echo "ulimit -m unlimited") >> ${HOMEDIR}/.bashrc
+fi
 
 # Create tempdir
 tmpdir=$(mktemp -d)
@@ -52,15 +68,16 @@ yum install -y perl-Digest-MD5.x86_64 redhat-lsb-core vtk vtk-devel gcc gcc-gcc+
 # License File Setting
 LICENSE=$(jetpack config LICENSE)
 PODKEY=$(jetpack config PODKEY)
-(echo "export STARCCMPLUS_VERSION=${STARCCMPLUS_VERSION}"; echo "export PRECISION=-${PRECISION^}"; echo "export CDLMD_LICENSE_FILE=${LICENSE}"; echo "export PODKEY=${PODKEY}") > /etc/profile.d/starccm.sh
+(echo "export STARCCMPLUS_VERSION=${STARCCMPLUS_VERSION}${PRECISION^}"; echo "export CDLMD_LICENSE_FILE=${LICENSE}"; echo "export PODKEY=${PODKEY}") > /etc/profile.d/starccm.sh
 chmod a+x /etc/profile.d/starccm.sh
 chown ${CUSER}:${CUSER} /etc/profile.d/starccm.sh
 
 # Don't run if we've already expanded the STAR-CCM+ tarball. Download STAR-CCM+ installer into tempdir and unpack it into the apps directory
-if [[ ! -f ${HOMEDIR}/apps/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}-${PRECISION}.tar.gz ]]; then
-   jetpack download "STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}-${PRECISION}.tar.gz" ${HOMEDIR}/apps/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}-${PRECISION}.tar.gz
-   chown ${CUSER}:${CUSER} ${HOMEDIR}/apps/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}-${PRECISION}.tar.gz
-   tar zxfp ${HOMEDIR}/apps/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}-${PRECISION}.tar.gz -C ${HOMEDIR}/apps
+if [[ ! -f ${HOMEDIR}/apps/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz ]]; then
+   jetpack download "STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz" ${HOMEDIR}/apps/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz
+   echo "STAR-CCM+14.04.011_02_linux-x86_64-r8.tar.gz bfe91f519ff75712a16874e37583cc0e" > ${HOMEDIR}/starchecksum
+   chown ${CUSER}:${CUSER} ${HOMEDIR}/apps/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz
+   tar zxfp ${HOMEDIR}/apps/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz -C ${HOMEDIR}/apps
    chown ${CUSER}:${CUSER} ${HOMEDIR}/apps/starccm+_${STARCCMPLUS_VERSION}
 fi
 
@@ -73,7 +90,7 @@ if [[ ! -f ${HOMEDIR}/apps/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCM
    "14" ) SCRIPT_VERSION="2.12_gnu7.1" ;;
    esac
 #   ${HOMEDIR}/apps/starccm+_${STARCCMPLUS_VERSION}/STAR-CCM+14.04.011_02_linux-x86_64-2.12_gnu7.1-r8.sh -i silent -DINSTALLDIR=${HOMEDIR}/apps -DNODOC=true -DINSTALLFLEX=false
-   sudo -u root ${HOMEDIR}/apps/starccm+_${STARCCMPLUS_VERSION}/Disk1/InstData/VM/STARCCMPLUS.bin -i silent -DINSTALLDIR=${HOMEDIR}/apps -DNODOC=true -DINSTALLFLEX=false
+   sudo -u root ${HOMEDIR}/apps/starccm+_${STARCCMPLUS_VERSION}/Disk1/InstData/VM/STARCCMPLUS.bin -i silent -DINSTALLDIR=${HOMEDIR}/apps -DNODOC=true -DINSTALLFLEX=false | exit 0
 fi
 
 # download standard models
