@@ -9,11 +9,14 @@ echo "disabling selinux"
 setenforce 0
 sed -i -e "s/^SELINUX=enforcing$/SELINUX=disabled/g" /etc/selinux/config
 
-#HOMEDIR=$(jetpack config cuser.home_dir)
-#CUSER=${HOMEDIR##*/}
 CUSER=$(grep "Added user" /opt/cycle/jetpack/logs/jetpackd.log | awk '{print $6}')
 CUSER=${CUSER//\'/}
 CUSER=${CUSER//\`/}
+# After CycleCloud 7.9 and later 
+if [[ -z $CUSER ]]; then
+   CUSER=$(grep "Added user" /opt/cycle/jetpack/logs/initialize.log | awk '{print $6}' | head -1)
+   CUSER=${CUSER//\`/}
+fi
 echo ${CUSER} > /mnt/exports/shared/CUSER
 HOMEDIR=/shared/home/${CUSER}
 
@@ -21,7 +24,7 @@ HOMEDIR=/shared/home/${CUSER}
 STARCCMPLUS_VERSION=14.04.011
 REVISION=02
 STARCCMPLUS_PLATFORM=linux-x86_64
-PRECISION=r8 #r8 is single precison
+PRECISION=r8 #r8 is double precison
 # get file name
 STARCCMPLUSFILENAME=$(jetpack config StarccmFileName)
 # set parameters
@@ -30,9 +33,9 @@ REVISION=${STARCCMPLUSFILENAME:19:2}
 STARCCMPLUS_PLATFORM=${STARCCMPLUSFILENAME:22:12}
 PRECISION=${STARCCMPLUSFILENAME:35:2}
 
-# resource unlimit setting
-CMD1=$(tail -1 /etc/security/limits.conf)
-if [[ $CMD1 != '* soft nofile 65535' ]]; then
+# resource ulimit setting
+CMD1=$(grep memlock /etc/security/limits.conf | head -2)
+if [[ -z "${CMD1}" ]]; then
   (echo "* hard memlock unlimited"; echo "* soft memlock unlimited"; echo "* hard nofile 65535"; echo "* soft nofile 65535") >> /etc/security/limits.conf
 fi
 
@@ -48,7 +51,7 @@ VMSKU=`cat /proc/cpuinfo | grep "model name" | head -1 | awk '{print $7}'`
 CORES=$(grep cpu.cores /proc/cpuinfo | wc -l)
 
 # mandatory packages
-yum install -y perl-Digest-MD5.x86_64 redhat-lsb-core vtk vtk-devel gcc gcc-gcc++
+yum install -y perl-Digest-MD5.x86_64 redhat-lsb-core vtk vtk-devel libXt gcc gcc-gcc++ htop
 
 ## H16r or H16r_Promo
 if [[ ${CORES} = 16 ]] ; then

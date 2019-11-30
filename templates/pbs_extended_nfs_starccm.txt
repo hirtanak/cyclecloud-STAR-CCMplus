@@ -9,7 +9,7 @@ FormLayout = selectionpanel
 Category = Applications
 IconUrl = https://raw.githubusercontent.com/hirtanak/scripts/master/SiemensStarCCMPluslogo.png
 
-#Autoscale = $Autoscale #Autoscale as Disable
+Autoscale = $Autoscale
 
     [[node defaults]]
     UsePublicNetwork = $UsePublicNetwork
@@ -69,7 +69,6 @@ IconUrl = https://raw.githubusercontent.com/hirtanak/scripts/master/SiemensStarC
         [[[configuration cyclecloud.exports.nfs_data]]]
         type = nfs
         export_path = /mnt/exports/apps
-#        raid_level = 0
 
     [[nodearray execute]]
     MachineType = $ExecuteMachineType
@@ -94,18 +93,17 @@ IconUrl = https://raw.githubusercontent.com/hirtanak/scripts/master/SiemensStarC
         mountpoint = /mnt/exports/apps
         export_path = /mnt/exports/apps
 
-[parameters About]
+[parameters Required Settings]
 Order = 1
 
     [[parameters About STAR-CCMplus]]
+    Order = 10
 
         [[[parameter STAR-CCMplus]]]
+        Order = 15
         HideLabel = true
         Config.Plugin = pico.widget.HtmlTemplateWidget
-        Config.Template = '''<p>Insert template description here</p>'''
-
-[parameters Required Settings]
-Order = 10
+        Config.Template = '''<p>Azure CyecleCloud template for Siemens STAR-CCM+ with OSS PBS Pro</p>'''
 
     [[parameters Virtual Machines ]]
     Description = "The cluster, in this case, has two roles: the scheduler master-node with shared filer and the execute hosts. Configure which VM types to use based on the requirements of your application."
@@ -127,9 +125,9 @@ Order = 10
         Label = Execute VM Type
         Description = The VM type for execute nodes
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_H16r
+        DefaultValue = Standard_HC44rs
         Config.Multiselect = true
-        Config.Filter := Package in {"Standard_H16r", "Standard_H16r_Promo", "Standard_HB60rs", "StandardHC44rs"}
+        Config.Filter := Package in {"Standard_H16r", "Standard_H16r_Promo", "Standard_HB60rs", "Standard_HC44rs"}
         config.plugin = pico.control.AutoCompleteDropdown
             [[[[list Config.Entries]]]]
             Name = Standard_H16r
@@ -157,7 +155,7 @@ Order = 10
         [[[parameter MaxExecuteCoreCount]]]
         Label = Max Cores
         Description = The total number of execute cores to start
-        DefaultValue = 128
+        DefaultValue = 88
         Config.Plugin = pico.form.NumberTextBox
         Config.MinValue = 0
         Config.IntegerOnly = true
@@ -196,7 +194,7 @@ Order = 20
 	required = True
 	label = STAR-CCM+ version
 	Description = Version of STAR-CCMplus to install on the cluster. Package should be named STAR-CCM+-<version>_<platform><precision>.tar.gz
-	defaultvalue = STAR-CCM+14.04.011_02_linux-x86_64-r8.tar.gz
+	defaultvalue = STAR-CCM+14.04.013_01_linux-x86_64.tar.gz
 
         [[[parameter configuration_LICENSE]]]
     	requied = False
