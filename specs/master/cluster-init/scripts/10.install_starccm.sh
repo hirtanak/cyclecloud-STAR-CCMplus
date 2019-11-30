@@ -85,7 +85,7 @@ chown -R ${CUSER}:${CUSER} ${HOMEDIR}/apps/starccm+_${STARCCMPLUS_VERSION} | exi
 
 source /etc/profile.d/starccm.sh
 if [[ ! -f ${HOMEDIR}/apps/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION}/star/bin/starccm+ ]]; then
-   case ${STARCCMPLUS_VERSION:0:2} in 
+   case ${STARCCMPLUS_VERSION:0:2} in
    "12" ) SCRIPT_VERSION="2.5_gnu4.8" ;;
    "14" ) SCRIPT_VERSION="2.12_gnu7.1" ;;
    esac
@@ -99,7 +99,7 @@ if [[ ! -f ${HOMEDIR}/${MODEL%%.gz} ]]; then
    gunzip -f -d ${HOMEDIR}/${MODEL} | exit 0
    chown ${CUSER}:${CUSER} ${HOMEDIR}/${MODEL} | exit 0
    case ${MODEL} in
-   "TurboCharger-NoRun.sim.gz" ) 
+   "TurboCharger-NoRun.sim.gz" )
        gunzip -f -d ${HOMEDIR}/${MODEL} | exit 0
        chown ${CUSER}:${CUSER} ${HOMEDIR}/${MODEL%%.gz} | exit 0
        echo "8d4dbbd82a6b468b394ca717c0abc599" > ${HOMEDIR}/modelchecksum

@@ -5,15 +5,14 @@
 1. Prepaire for your STAR-CCM+ bilnary.
 2. Install CycleCloud CLI
 
-## How to install 
+## How to install
 
-1. tar zxvf cyclecloud-STAR-CCM+<version>.tar.gz
-2. cd cyclecloud-STAR-CCM+<version>
-2. put STAR-CCM+ library/model on <template>/blob directory.
-4. pug OSS PBS Pro files on <template>/blob directory.
-5. Rewrite "Files" attribute for your binariy in "project.ini" file. 
-6. run "cyclecloud project upload azure-storage" for uploading template to CycleCloud
-7. "cyclecloud import_template -f templates/pbs_extended_nfs_starccm.txt" for register this template to your CycleCloud
+1. tar zxvf cyclecloud-Particleworks.zip
+1. cd cyclecloud-Particleworks
+1. put your Particleworks binanry /blob directory.
+1. Rewrite "Files" attribute for your binariy in "project.ini" file.
+1. run "cyclecloud project upload azure-storage" for uploading template to CycleCloud
+1. "cyclecloud import_template -f templates/pbs_extended_nfs_pw.txt" for register this template to your CycleCloud
 
 ## How to run Siemens STAR-CCM+
 
@@ -59,9 +58,9 @@ ${INSTALL_DIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION
 1. This tempate support only single administrator. So you have to use same user between superuser(initial Azure CycleCloud User) and deployment user of this template
 2. Currently AutoScale is disabled. you have to create execute node and get IP. In addtion, create hosts file for your execute node environment.
 
-# Azure CycleCloud用テンプレート:STAR-CCM+(NFS/PBSPro)
+# Azure CycleCloud用テンプレート:Siemens STAR-CCM+(NFS/PBSPro)
 
-[Azure CycleCloud](https://docs.microsoft.com/en-us/azure/cyclecloud/) はMicrosoft Azure上で簡単にCAE/HPC/Deep Learning用のクラスタ環境を構築できるソリューションです。
+[Azure CycleCloud](https://docs.microsoft.com/en-us/azure/cyclecloud/) はMicrosoft Azure上で簡単にCAE/HPC/Deep Learning用のクラスタ環境を構築できるソリューションです。（図はOSS PBS Proテンプレートの場合）
 
 ![Azure CycleCloudの構築・テンプレート構成](https://raw.githubusercontent.com/hirtanak/osspbsdefault/master/AzureCycleCloud-OSSPBSDefault.png "Azure CycleCloudの構築・テンプレート構成")
 
@@ -78,9 +77,9 @@ STAR-CCM+用のテンプレートになっています。
 4. MasterノードのIPアドレスを固定設定
 	 - 一旦停止後、再度起動した場合にアクセスする先のIPアドレスが変更されない
 
-![OSS PBS Default テンプレート構成](https://raw.githubusercontent.com/hirtanak/osspbsdefault/master/OSSPBSDefaultDiagram.png "OSS PBS Default テンプレート構成")
+![Siemens STAR-CCM+ テンプレート構成](https://raw.githubusercontent.com/hirtanak/scripts/master/cctemplatedefaultdiagram.png "Siemens STAR-CCM+ テンプレート構成")
 
-OSS PBS Defaultテンプレートインストール方法
+## Siemens STAR-CCM+ テンプレートインストール方法
 
 前提条件: テンプレートを利用するためには、Azure CycleCloud CLIのインストールと設定が必要です。詳しくは、 [こちら](https://docs.microsoft.com/en-us/azure/cyclecloud/install-cyclecloud-cli) の文書からインストールと展開されたAzure CycleCloudサーバのFQDNの設定が必要です。
 
