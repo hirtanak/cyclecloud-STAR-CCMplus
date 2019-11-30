@@ -19,7 +19,7 @@ Autoscale = $Autoscale
     KeyPairLocation = ~/.ssh/cyclecloud.pem
 #    KeyPairLocation = ~/examples/id_rsaccuser 
    
-        [[[cluster-init STAR-CCMplus:default:1.0.1]]]
+        [[[cluster-init STAR-CCMplus:default:1.0.2]]]
         Optional = True
 
         [[[configuration]]]
@@ -37,7 +37,7 @@ Autoscale = $Autoscale
 
         [[[configuration]]]
 
-        [[[cluster-init STAR-CCMplus:master:1.0.1]]]
+        [[[cluster-init STAR-CCMplus:master:1.0.2]]]
         Optional = True
 
         [[[network-interface eth0]]]
@@ -82,7 +82,7 @@ Autoscale = $Autoscale
 
         [[[configuration]]]
 
-        [[[cluster-init STAR-CCMplus:execute:1.0.1]]]
+        [[[cluster-init STAR-CCMplus:execute:1.0.2]]]
         Optional = True
 
         [[[network-interface eth0]]]
