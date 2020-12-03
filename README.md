@@ -55,8 +55,10 @@ ${INSTALL_DIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION
 </pre></code>
 
 ## Known Issues
-1. This tempate support only single administrator. So you have to use same user between superuser(initial Azure CycleCloud User) and deployment user of this template
-2. Currently AutoScale is disabled. you have to create execute node and get IP. In addtion, create hosts file for your execute node environment.
+~~1. This tempate support only single administrator. So you have to use same user between superuser(initial Azure CycleCloud User) and deployment user of this template~~
+**Fixed by "Script User" you should input correct user in "Script User".**
+~~. Currently AutoScale is disabled. you have to create execute node and get IP. In addtion, create hosts file for your execute node environment.~~
+**Fxied**
 
 # Azure CycleCloud用テンプレート:Siemens STAR-CCM+(NFS/PBSPro)
 
