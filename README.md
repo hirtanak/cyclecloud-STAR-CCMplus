@@ -7,11 +7,11 @@
 
 ## How to install
 
-1. tar zxvf cyclecloud-Particleworks.zip
-1. cd cyclecloud-Particleworks
-1. put your Particleworks binanry /blob directory.
+1. tar zxvf cyclecloud-STAR-CCMplus.tar.gz
+1. cd cyclecloud-STAR-CCMplus
+1. put your STAR-CCMplus binanry /blob directory.
 1. Rewrite "Files" attribute for your binariy in "project.ini" file.
-1. run "cyclecloud project upload azure-storage" for uploading template to CycleCloud
+1. run "cyclecloud project upload cloud-storage(azure-storage)" for uploading template to CycleCloud
 1. "cyclecloud import_template -f templates/pbs_extended_nfs_pw.txt" for register this template to your CycleCloud
 
 ## How to run Siemens STAR-CCM+
@@ -56,9 +56,12 @@ ${INSTALL_DIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION
 
 ## Known Issues
 ~~1. This tempate support only single administrator. So you have to use same user between superuser(initial Azure CycleCloud User) and deployment user of this template~~
-**Fixed by "Script User" you should input correct user in "Script User".**
+
+**-> Fixed by "Script User" you should input correct user in "Script User".**
+
 ~~. Currently AutoScale is disabled. you have to create execute node and get IP. In addtion, create hosts file for your execute node environment.~~
-**Fxied**
+
+**-> Fxied**
 
 # Azure CycleCloud用テンプレート:Siemens STAR-CCM+(NFS/PBSPro)
 
@@ -83,16 +86,16 @@ STAR-CCM+用のテンプレートになっています。
 
 ## Siemens STAR-CCM+ テンプレートインストール方法
 
-前提条件: テンプレートを利用するためには、Azure CycleCloud CLIのインストールと設定が必要です。詳しくは、 [こちら](https://docs.microsoft.com/en-us/azure/cyclecloud/install-cyclecloud-cli) の文書からインストールと展開されたAzure CycleCloudサーバのFQDNの設定が必要です。
+前提条件: テンプレートを利用するためには、Azure CycleCloud CLIのインストールと設定が必要です。詳しくは、 [こちら](https://docs.microsoft.com/en-us/azure/cyclecloud/install-cyclecloud-cli) の文書からインストールが必要です。 　~~展開されたAzure CycleCloudサーバのFQDNの設定が必要です。~~
 
 1. テンプレート本体をダウンロード
 1. 展開、ディレクトリ移動
 1. STAR-CCM+バイナリを準備
-1. project.ini内で利用するバイナリを設定
+1. project.ini内で利用するバイナリを設定、もしくはAzure CycleCloudに直接アップロード
 1. cyclecloudコマンドラインからテンプレートインストール 
    - tar zxvf cyclecloud-STAR-CCM+<version>.tar.gz
    - cd cyclecloud-STAR-CCM+<version>
-   - cyclecloud project upload azure-storage
+   - cyclecloud project upload cloud-storage(古いバージョンだと、azure-storage)
    - cyclecloud import_template -f templates/pbs_extended_nfs_starccm.txt
    - デフォルトのバイナリを変更可能(199行目当たりのデフォルトファイル名を設定変更)
 1. 削除したい場合、 cyclecloud delete_template STAR-CCM+ コマンドで削除可能
