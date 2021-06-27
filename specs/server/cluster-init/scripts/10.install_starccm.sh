@@ -10,11 +10,6 @@ echo "disabling selinux"
 setenforce 0 | exit 0
 sed -i -e "s/^SELINUX=enforcing$/SELINUX=disabled/g" /etc/selinux/config
 
-STARCCM_INSTALLATION=$(jetpack config STARCCM_INSTALLATION)
-if [[ ${STARCCM_INSTALLATION} == False ]] || [[ ${STARCCM_INSTALLATION} == "None" ]]; then
-   exit 0
-fi
-
 # adapt multi user environment
 SCRIPTUSER=$(jetpack config SCRIPTUSER)
 if [[ -z ${SCRIPTUSER}  ]]; then
