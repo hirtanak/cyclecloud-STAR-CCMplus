@@ -11,7 +11,8 @@ setenforce 0
 sed -i -e "s/^SELINUX=enforcing$/SELINUX=disabled/g" /etc/selinux/config
 
 # adapt multi user environment
-SCRIPTUSER=$(jetpack config SCRIPTUSER)
+jetpack users | head -n 1 > tmpfile
+SCRIPTUSER=$(cut -d " " -f 2 tmpfile)
 if [[ -z ${SCRIPTUSER}  ]]; then
    CUSER=$(grep "Added user" /opt/cycle/jetpack/logs/jetpackd.log | awk '{print $6}')
    CUSER=${CUSER//\'/}
