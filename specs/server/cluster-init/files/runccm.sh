@@ -7,9 +7,8 @@
 #PBS -l select=4:ncpus=15
 NP=60
 
-logfile=starlog-`date +%Y%m%d_%H-%M-%S`.log
+logfile=starlog-`date +%Y%m%d_%H%M`.log
 FILE=~/runccm.sh
-echo "===========================================================================" >> $logfile
 cat $FILE >> $logfile
 echo "===========================================================================" >> $logfile
 

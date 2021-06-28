@@ -369,7 +369,6 @@ Order = 30
         requied = False
         label = Model Name
         Description = "Model Name"
-        defaultvalue = test1.sim
 
     [[parameters Software]]
     Description = "Specify the scheduling software, and base OS installed on all nodes, and optionally the cluster-init and chef versions from your Locker."
@@ -379,21 +378,21 @@ Order = 30
         Label = Scheduler OS
         ParameterType = Cloud.Image
         Config.OS = linux
-        DefaultValue = cycle.image.centos8
+        DefaultValue = cycle.image.centos7
         Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8"}
 
         [[[parameter ImageName]]]
         Label = Compute OS
         ParameterType = Cloud.Image
         Config.OS = linux
-        DefaultValue = cycle.image.centos8
+        DefaultValue = cycle.image.centos7
         Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8"}
 
         [[[parameter PBSVersion]]]
         Label = PBS Version
         Config.Plugin = pico.form.Dropdown
         Config.Entries := {[Label="OpenPBS v20, el8-only"; Value="20.0.1-0"], [Label="PBSPro v18, el7-only"; Value="18.1.4-0"]}
-        DefaultValue = 20.0.1-0
+        DefaultValue = 18.1.4-0
 
         [[[parameter serverClusterInitSpecs]]]
         Label = Server Cluster-Init

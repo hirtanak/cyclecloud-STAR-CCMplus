@@ -28,7 +28,7 @@ else
     echo ${CUSER} > /shared/CUSER
 fi
 HOMEDIR=/shared/home/${CUSER}
-CYCLECLOUD_SPEC_PATH=/mnt/cluster-init/dnccluster/server
+CYCLECLOUD_SPEC_PATH=/mnt/cluster-init/STAR-CCMplus/server
 
 # default parameters
 STARCCMPLUS_VERSION=14.04.011

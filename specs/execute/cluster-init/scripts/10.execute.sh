@@ -28,7 +28,7 @@ else
    echo ${CUSER} > /shared/CUSER
 fi
 HOMEDIR=/shared/home/${CUSER}
-CYCLECLOUD_SPEC_PATH=/mnt/cluster-init/dnccluster/execute
+CYCLECLOUD_SPEC_PATH=/mnt/cluster-init/STAR-CCMplus/execute
 
 # resource ulimit setting
 CMD1=$(grep memlock /etc/security/limits.conf | head -2)
@@ -47,6 +47,7 @@ if [[ ${CMD} = "7.*.*" ]]; then
 fi
 if [[ ${CMD} = "8.*.*" ]]; then
     echo "skip installation"
+    yum install -y libnsl
 fi
 
 ## H16r or H16r_Promo
@@ -74,6 +75,5 @@ fi
 # package install
 yum install -y epel-release
 yum install -y htop
-
 
 echo "end of 10.execute.sh"
