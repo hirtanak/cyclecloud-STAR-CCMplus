@@ -169,7 +169,7 @@ Order = 10
         Label = Server VM Type
         Description = The VM type for scheduler server and shared filer.
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_D4s_v3
+        DefaultValue = Standard_D4as_v4
 
         [[[parameter ExecuteMachineType]]]
         Label = Execute VM Type
@@ -177,7 +177,6 @@ Order = 10
         ParameterType = Cloud.MachineType
         DefaultValue = Standard_HB120rs_v2
         Config.Multiselect = true
-        Config.Filter := Package in {"Standard_H16r", "Standard_H16r_Promo", "Standard_HB60rs", "Standard_HB120rs_v2", "Standard_HC44rs"}
         config.plugin = pico.control.AutoCompleteDropdown
             [[[[list Config.Entries]]]]
             Name = Standard_H16r
@@ -191,6 +190,15 @@ Order = 10
             [[[[list Config.Entries]]]]
             Name = Standard_HB120rs_v2
             Label = Standard_HB120rs_v2
+            [[[[list Config.Entries]]]]
+            Name = Standard_HB120rs_v3
+            Label = Standard_HB120rs_v3
+            [[[[list Config.Entries]]]]
+            Name = Standard_HB64-120rs_v3
+            Label = Standard_HB64-120rs_v3
+            [[[[list Config.Entries]]]]
+            Name = Standard_HB32-120rs_v3
+            Label = Standard_HB32-120rs_v3
             [[[[list Config.Entries]]]]
             Name = Standard_HC44rs
             Label = Standard_HC44rs
@@ -208,7 +216,7 @@ Order = 10
         [[[parameter MaxExecuteCoreCount]]]
         Label = Max Cores
         Description = The total number of execute cores to start
-        DefaultValue = 240
+        DefaultValue = 480
         Config.Plugin = pico.form.NumberTextBox
         Config.MinValue = 1
         Config.IntegerOnly = true
@@ -227,7 +235,6 @@ Order = 10
         Description = Subnet Resource Path (ResourceGroup/VirtualNetwork/Subnet)
         ParameterType = Azure.Subnet
         Required = True
-
 
 [parameters Network Attached Storage]
 Order = 20
@@ -337,7 +344,7 @@ Order = 30
         required = True
         label = STAR-CCM+ version
         Description = Version of STAR-CCMplus to install on the cluster. Package should be named STAR-CCM+-<version>_<platform><precision>.tar.gz
-        defaultvalue = STAR-CCM+15.02.007_02_linux-x86_64-r8.tar.gz
+        defaultvalue = STAR-CCM+16.06.008_01_linux-x86_64-r8.tar.gz
 
         [[[parameter configuration_LICENSE]]]
         requied = False
@@ -420,7 +427,7 @@ Order = 30
 
         [[[parameter ReturnProxy]]]
         Label = Return Proxy
-        DefaultValue = true
+        DefaultValue = false
         ParameterType = Boolean
         Config.Label = Use SSH tunnel to connect to CycleCloud (required if direct access is blocked)
 

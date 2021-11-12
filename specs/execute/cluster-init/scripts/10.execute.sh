@@ -42,10 +42,11 @@ CORES=$(grep cpu.cores /proc/cpuinfo | wc -l)
 
 # install packages
 CMD=$(jetpack config platform_version)
-if [[ ${CMD} = "7.*.*" ]]; then
-    yum install -y perl-Digest-MD5.x86_64 redhat-lsb-core vtk vtk-devel gcc gcc-gcc++
+if [[ ${CMD} = 7.?.???? ]]; then
+    echo "install STAR-CCM+ requored packages"
+    yum install -y perl-Digest-MD5.x86_64 redhat-lsb-core vtk vtk-devel gcc gcc-gcc++ libXt
 fi
-if [[ ${CMD} = "8.*.*" ]]; then
+if [[ ${CMD} = 8.?.???? ]]; then
     echo "skip installation"
     yum install -y libnsl
 fi
@@ -75,5 +76,13 @@ fi
 # package install
 yum install -y epel-release
 yum install -y htop
+
+# License File Setting
+LICENSE=$(jetpack config LICENSE)
+PODKEY=$(jetpack config PODKEY)
+(echo "export CDLMD_LICENSE_FILE=${LICENSE}"; echo "export PODKEY=${PODKEY}") > /etc/profile.d/starccm.sh
+chmod +x /etc/profile.d/starccm.sh
+chown ${CUSER}:${CUSER} /etc/profile.d/starccm.sh
+
 
 echo "end of 10.execute.sh"

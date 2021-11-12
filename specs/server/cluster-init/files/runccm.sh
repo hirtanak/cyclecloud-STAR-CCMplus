@@ -1,48 +1,50 @@
-# Sample script for STAR-CCM+
-# Copyright (c) 2019-2021 Hiroshi Tanaka, hirtanak@gmail.com @hirtanak
-# Licensed under the MIT License.
-
 #!/bin/bash
 #PBS -j oe
-#PBS -l select=4:ncpus=15
-NP=60
+#PBS -l select=4:ncpus=60
+NP=240
 
-logfile=starlog-`date +%Y%m%d_%H%M`.log
-FILE=~/runccm.sh
-cat $FILE >> $logfile
-echo "===========================================================================" >> $logfile
+NUM=00
 
-# Sample Command: /opt/CD-adapco/12.02.011/STAR-CCM+12.02.011/star/bin/starccm+ -np 30 -machinefile /home/azureuser/hosts -licpath 1999@flex.cd-adapco.com -power -podkey <removed> -server -rsh ssh ./MODEL1.sim
+FILE=runccm.sh
+#JAVA=run.java
+INPUT1=test1.sim #5WJ_test.sim
 
-STARCCMPLUS_VERSION=15.02.007
+# set up input files
+#cp /mnt/share01/40hr.zip /shared/home/azureuser/input/40hr.zip
+#unzip /shared/home/azureuser/input/40hr.zip -d /shared/home/azureuser/
+
+LOGFILE=${NUM}-${NP}-${PBS_JOBID%%.*}-`date +%Y%m%d_%H%M`.log
+
+# MPI settings
+HPCX=/opt/hpcx-v2.8.3-gcc-MLNX_OFED_LINUX-5.2-2.2.3.0-redhat7.7-x86_64/ompi
+
+#source ${HPCX}/../hpcx-init.sh
+#module use ${HPCX}/../modulefiles
+#module load ${HPCX}/../modulefiles/hpcx
+#env | grep HPCX
+
+STARCCMPLUS_VERSION=16.06.008
 PRECISION=-R8 #-R8 double precision
 INSTALL_DIR=/shared/home/azureuser
-INPUT=/shared/home/azureuser/test1.sim
-#HOSTDIR=/shared/home/azureuser
 export DISPLAY=0:0
 
-source /etc/profile.d/starccm.sh
+mkdir -p ${INSTALL_DIR}/${PBS_JOBID%%.*}
+cp ${INSTALL_DIR}/${FILE} ${INSTALL_DIR}/${PBS_JOBID%%.*}/
+cd ${INSTALL_DIR}/${PBS_JOBID%%.*}/
 
-#export I_MPI_FABRICS=shm:ofa # for 2019, use I_MPI_FABRICS=shm:ofi
-#export MPI_IB_PKEY=0x800c
-#export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${INSTALL_DIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION}${PRECISION}/star/lib
-source /opt/intel/oneapi/mpi/latest/env/vars.sh
-#MPI_ROOT="${INSTALL_DIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION}${PRECISION}/mpi/intel/2018.1.163/linux-x86_64/rto/bin64"
+#MPI_ROOT="/shared/home/azureuser/15.04.010-R8/STAR-CCM+15.04.010-R8/mpi/openmpi/4.0.2-cda-002/linux-x86_64-2.12/gnu7.1"
+#MPI_ROOT=${HPCX}
+MPI_ROOT="/shared/home/azureuser/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION}/mpi/openmpi/4.0.3-cda-002/linux-x86_64-2.12/gnu7.1"
+export PATH=${MPI_ROOT}/bin:$PATH
+export LD_LIBRARY_PATH=${MPI_ROOT}/lib:${LD_LIBRARY_PATH}
 
 export CDLMD_LICENSE_FILE=1999@flex.cd-adapco.com
-#PODKEY=<removed>
+PODKEY=<PLEASE INSERT POD KEY>
 
-# you spin up execute node and create hosts file on home directory.
+echo STARTTIME `date` >> TIMELOG
 
-# pingpong
-#/opt/intel/impi/2018.4.274/intel64/bin/mpirun -machinefile ${PBS_NODEFILE} hostname
-#/opt/intel/impi/2018.4.274/intel64/bin/mpirun -machinefile ${PBS_NODEFILE} IMB-MPI1 pingpong
+time ${INSTALL_DIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION}${PRECISION}/star/bin/starccm+ -np ${NP} -machinefile ${PBS_NODEFILE} -licpath ${CDLMD_LICENSE_FILE} -power -podkey ${PODKEY} -mpi openmpi -rsh ssh -batch ${INSTALL_DIR}/${JAVA} ${INSTALL_DIR}/${INPUT1} >> ${LOGFILE}
 
-# sample command line1
-#${INSTALL_DIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION}${PRECISION}/star/bin/starccm+ -np ${NP} -machinefile ${PBS_NODEFILE} -licpath ${CDLMD_LICENSE_FILE} -power -podkey ${PODKEY} -mpi intel -mpiflags "-ppn 1 -env I_MPI_DEBUG 5 -env I_MPI_FABRICS shm:ofa" -rsh ssh -server ${INPUT}
+echo ENDTIME `date` >> TIMELOG
 
-# sample command line2 "use BatterySimulationModuleCellThermalAnalysis2Running3CellsInSeries_final.sim"
-JAVA=Introduction.java
-INPUT1=Introduction_final.sim
-${INSTALL_DIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION}${PRECISION}/star/bin/starccm+ -np ${NP} -licpath ${CDLMD_LICENSE_FILE} -power -podkey ${PODKEY} -mpi intel -rsh ssh -batch ${JAVA} ${INPUT1} >> $logfile
-
+echo "end of script"

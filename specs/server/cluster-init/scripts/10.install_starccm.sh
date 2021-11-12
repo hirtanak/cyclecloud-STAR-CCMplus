@@ -53,7 +53,7 @@ MODEL=$(jetpack config MODEL)
 # resource ulimit setting
 CMD1=$(grep ulimit ${HOMEDIR}/.bashrc | sed -n 1p)
 if [[ -z "${CMD1}" ]]; then
-    (echo "ulimit -m unlimited"; echo "source /etc/profile.d/starccm.sh") >> ${HOMEDIR}/.bashrc
+    (echo "ulimit -m unlimited"; echo "source /etc/profile.d/starccm.sh"; echo "export LC_ALL=en_US.UTF-8") >> ${HOMEDIR}/.bashrc
 fi
 
 # Create tempdir
@@ -87,13 +87,15 @@ if [[ ! -f ${HOMEDIR}/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_
     chown ${CUSER}:${CUSER} ${HOMEDIR}/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz
 fi
 set +u
-chown ${CUSER}:${CUSER} ${HOMEDIR}/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz
-tar zxfp ${HOMEDIR}/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz -C ${HOMEDIR}
-chown -R ${CUSER}:${CUSER} ${HOMEDIR}/starccm+_${STARCCMPLUS_VERSION}
+if [[ ! -d ${HOMEDIR}/starccm+_${STARCCMPLUS_VERSION} ]]; then
+    chown ${CUSER}:${CUSER} ${HOMEDIR}/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz
+    tar zxfp ${HOMEDIR}/STAR-CCM+${STARCCMPLUS_VERSION}_${REVISION}_${STARCCMPLUS_PLATFORM}${PRECISION}.tar.gz -C ${HOMEDIR}
+    chown -R ${CUSER}:${CUSER} ${HOMEDIR}/starccm+_${STARCCMPLUS_VERSION}
+fi
 set -u
 
 source /etc/profile.d/starccm.sh
-if [[ ! -f ${HOMEDIR}/${STARCCMPLUS_VERSION}${PRECISION}/STAR-CCM+${STARCCMPLUS_VERSION}/star/bin/starccm+ ]]; then
+if [[ ! -f ${HOMEDIR}/${STARCCMPLUS_VERSION}${PRECISION^^}/STAR-CCM+${STARCCMPLUS_VERSION}/star/bin/starccm+ ]]; then
     case ${STARCCMPLUS_VERSION:0:2} in
     "12" ) SCRIPT_VERSION="2.5_gnu4.8" ;;
     "14" ) SCRIPT_VERSION="2.12_gnu7.1" ;;
@@ -104,28 +106,30 @@ fi
 
 # download standard models
 set +u
-if [[ ! -f ${HOMEDIR}/${MODEL%%.gz} ]]; then
-    jetpack download ${MODEL} ${HOMEDIR}/
-    chown ${CUSER}:${CUSER} ${HOMEDIR}/${MODEL}
-    case ${MODEL} in
-    "TurboCharger-NoRun.sim.gz" )
-        gunzip -f -d ${HOMEDIR}/${MODEL}
-        chown ${CUSER}:${CUSER} ${HOMEDIR}/${MODEL%%.gz}
-        echo "8d4dbbd82a6b468b394ca717c0abc599" > ${HOMEDIR}/modelchecksum
-        chown ${CUSER}:${CUSER} ${HOMEDIR}/modelchecksum ;;
-    esac
+if [ ${MODEL%%.gz} != "None" ];then 
+    if [[ ! -f ${HOMEDIR}/${MODEL%%.gz} ]]; then
+        jetpack download ${MODEL} ${HOMEDIR}/
+        chown ${CUSER}:${CUSER} ${HOMEDIR}/${MODEL}
+        case ${MODEL} in
+            "TurboCharger-NoRun.sim.gz" )
+            gunzip -f -d ${HOMEDIR}/${MODEL}
+            chown ${CUSER}:${CUSER} ${HOMEDIR}/${MODEL%%.gz}
+            echo "8d4dbbd82a6b468b394ca717c0abc599" > ${HOMEDIR}/modelchecksum
+            chown ${CUSER}:${CUSER} ${HOMEDIR}/modelchecksum ;;
+        esac
+    fi
 fi
 set -u
 
 # local file settings
-if [[ ! -f ${HOMEDIR}/starccmrun.sh ]]; then
+if [[ ! -f ${HOMEDIR}/runccm.sh ]]; then
     cp ${CYCLECLOUD_SPEC_PATH}/files/runccm.sh ${HOMEDIR}/
     chmod a+rx ${HOMEDIR}/runccm.sh
     chown ${CUSER}:${CUSER} ${HOMEDIR}/runccm.sh
 fi
 
 # file settings
-chown -R ${CUSER}:${CUSER} ${HOMEDIR}/starccm+_${STARCCMPLUS_VERSION}${PRECISION^^}
+chown -R ${CUSER}:${CUSER} ${HOMEDIR}/${STARCCMPLUS_VERSION}${PRECISION^^} | exit 0
 
 # PBS job history enable
 if [[ -e /opt/pbs ]]; then
